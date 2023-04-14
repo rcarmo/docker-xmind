@@ -1,9 +1,10 @@
-FROM ghcr.io/linuxserver/baseimage-rdesktop-web:bionic
+FROM ghcr.io/linuxserver/baseimage-kasmvnc:ubuntujammy
 
 ENV \
   CUSTOM_PORT="8080" \
-  GUIAUTOSTART="true" \
-  HOME="/config"
+  CUSTOM_HTTPS_PORT="8181" \
+  HOME="/config" \
+  TITLE="XMind 8"
 
 RUN \
   echo "**** install runtime packages ****" && \
@@ -16,12 +17,13 @@ RUN \
     ttf-mscorefonts-installer \
     openjdk-8-jre \
     libgtk2.0-0 \
-    libwebkitgtk-1.0-0 \
+    libwebkit2gtk-4.1-0 \
     lame \
     libc6 \
     libglib2.0-0 \
     libnss3 \
-    libqpdf21 \
+    libopengl0 \
+    libqpdf28 \
     libxkbcommon-x11-0 \
     libxcb-icccm4 \
     libxcb-image0 \
@@ -29,9 +31,12 @@ RUN \
     libxcb-randr0 \
     libxcb-render-util0 \
     libxcb-xinerama0 \
+    python3-xdg \
     ttf-wqy-zenhei \
     wget \
     unzip && \
+  apt-get install -y \
+    speech-dispatcher && \
   echo "**** install XMind 8 ****" && \
   mkdir -p /opt/xmind && \
   cd /opt/xmind && \
@@ -47,6 +52,7 @@ RUN \
   sed -i "s/^\.\./\/opt\/xmind/g" "/opt/xmind/XMind_amd64/XMind.ini" && \
   dbus-uuidgen > /etc/machine-id && \
   echo "**** cleanup ****" && \
+  sed -i 's|</applications>|  <application title="XMind  " type="normal">\n    <maximized>yes</maximized>\n  </application>\n</applications>|' /etc/xdg/openbox/rc.xml && \
   apt-get clean && \
   rm -rf \
     /tmp/* \

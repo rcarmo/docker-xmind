@@ -26,14 +26,16 @@ push:
 	docker push $(IMAGE_NAME)
 
 test:
-	docker run -d \
+	docker run \
 		--name=xmind \
 		-e PUID=1000 \
 		-e PGID=1000 \
-		-e TZ=Europe/London \
+		-e TZ=Europe/Lisbon \
 		-e PASSWORD='test' \
 		-e CLI_ARGS='' \
 		-p 8080:8080 \
-		-v /tmp/xmind-test:/config \
 		--restart unless-stopped \
 		-ti $(IMAGE_NAME)
+
+kill:
+	docker kill xmind ; docker rm xmind

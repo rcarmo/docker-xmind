@@ -16,11 +16,27 @@ Using it via a browser is hardly ideal, but it works well enough. Fortunately th
 
 ## Application Setup
 
-This image sets up the XMind desktop app and makes its interface available via Guacamole server in the browser. The interface is available at `http://your-ip:8080`.
+This image sets up the XMind desktop app and makes its interface available in the browser. The interface is available at `http://your-ip:8080` or `https://your-ip:8181`.
 
-By default, there is no password set for the main gui. Optional environment variable `PASSWORD` will allow setting a password for the user `abc`.
+By default, there is no password set for the main gui. Optional environment variable `PASSWORD` will allow setting a password for the user `abc`, via http auth.
 
-You can access advanced features of the Guacamole remote desktop using `ctrl`+`alt`+`shift` enabling you to use remote copy/paste and different languages.
+### Options in all KasmVNC based GUI containers
+
+This container is based on [Docker Baseimage KasmVNC](https://github.com/linuxserver/docker-baseimage-kasmvnc) which means there are additional environment variables and run configurations to enable or disable specific functionality.
+
+#### Optional environment variables
+
+| Variable | Description |
+| :----: | --- |
+| CUSTOM_PORT | Internal port the container listens on for http if it needs to be swapped from the default 3000. |
+| CUSTOM_HTTPS_PORT | Internal port the container listens on for https if it needs to be swapped from the default 3001. |
+| CUSTOM_USER | HTTP Basic auth username, abc is default. |
+| PASSWORD | HTTP Basic auth password, abc is default. If unset there will be no auth |
+| SUBFOLDER | Subfolder for the application if running a subfolder reverse proxy, need both slashes IE `/subfolder/` |
+| TITLE | The page title displayed on the web browser, default "KasmVNC Client". |
+| FM_HOME | This is the home directory (landing) for the file manager, default "/config". |
+| START_DOCKER | If set to false a container with privilege will not automatically start the DinD Docker setup. |
+| DRINODE | If mounting in /dev/dri for [DRI3 GPU Acceleration](https://www.kasmweb.com/kasmvnc/docs/master/gpu_acceleration.html) allows you to specify the device to use IE `/dev/dri/renderD128` |
 
 ## Usage
 
@@ -32,13 +48,15 @@ Here are some example snippets to help you get started creating a container.
 ---
 version: "2.1"
 services:
-  XMind:
-    image: <your_registry>/xmind
+  xmind:
+    image: ghcr.io/rcarmo/docker-xmind:latest
     container_name: xmind
+    security_opt:
+      - seccomp:unconfined #optional
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Europe/London
+      - TZ=Europe/Lisbon
       - PASSWORD= #optional
       - CLI_ARGS= #optional
     volumes:
@@ -53,30 +71,32 @@ services:
 ```bash
 docker run -d \
   --name=xmind \
+  --security-opt seccomp=unconfined `#optional` \
   -e PUID=1000 \
   -e PGID=1000 \
-  -e TZ=Europe/London \
+  -e TZ=Etc/UTC \
   -e PASSWORD= `#optional` \
   -e CLI_ARGS= `#optional` \
   -p 8080:8080 \
   -v /path/to/data:/config \
   --restart unless-stopped \
-  <your_registry>/xmind
-```
+  ghcr.io/rcarmo/docker-xmind:latest
 
+```
 ## Parameters
 
 Container images are configured using parameters passed at runtime (such as those above). These parameters are separated by a colon and indicate `<external>:<internal>` respectively. For example, `-p 8080:80` would expose port `80` from inside the container to be accessible from the host's IP on port `8080` outside the container.
 
-| Parameter             | Function                                      |
-| :----:                | ---                                           |
-| `-p 8080`             | XMind desktop gui.                            |
-| `-e PUID=1000`        | for UserID - see below for explanation        |
-| `-e PGID=1000`        | for GroupID - see below for explanation       |
-| `-e TZ=Europe/London` | Specify a timezone to use EG Europe/London.   |
-| `-e PASSWORD=`        | Optionally set a password for the gui.        |
-| `-e CLI_ARGS=`        | Optionally pass cli start arguments to XMind. |
-| `-v /config`          | Where XMind should store its configuration.   |
+| Parameter | Function |
+| :----: | --- |
+| `-p 8080` | Xmind desktop gui. |
+| `-e PUID=1000` | for UserID - see below for explanation |
+| `-e PGID=1000` | for GroupID - see below for explanation |
+| `-e TZ=Etc/UTC` | specify a timezone to use, see this [list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List). |
+| `-e PASSWORD=` | Optionally set a password for the gui. |
+| `-e CLI_ARGS=` | Optionally pass cli start arguments. |
+| `-v /config` | Where XMind should store its data. |
+| `--security-opt seccomp=unconfined` | For Docker Engine only, many modern gui apps need this to function as syscalls are unknown to Docker. |
 
 ## Environment variables from files (Docker secrets)
 
@@ -112,4 +132,4 @@ In this instance `PUID=1000` and `PGID=1000`, to find yours use `id user` as bel
 
 * [@plembo](https://github.com/plembo/xmind8) and [@mriza](https://github.com/mriza/XMind-Linux-Installer) for Linux installation steps, as well as parts of this `README`.
 * [@dimMaryanto93](https://gist.github.com/dimMaryanto93/17bea110ec8e49b5eed28c89640a49d9) for a neater, cleaner `.ini` file that saved me the trouble of messing about with Eclipse settings.
-* [@linuxserver](https://github.com/linuxserver/docker-calibre) for the original `Dockerfile`, which uses their Guacamole wrapper (and all steps of the `README` related to the container bits).
+* [@linuxserver](https://github.com/linuxserver/docker-calibre) for the original `Dockerfile`, which uses their VNC wrapper (and all steps of the `README` related to the container bits).

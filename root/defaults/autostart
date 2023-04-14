@@ -1,1 +1,1 @@
-s6-envdir -fn -- /var/run/s6/container_environment /opt/xmind/XMind_amd64/XMind $CLI_ARGS
+s6-envdir -fn -- /var/run/s6/container_environment /bin/bash -c 'umask ${UMASK:-022} && /opt/xmind/XMind_amd64/XMind $CLI_ARGS'
