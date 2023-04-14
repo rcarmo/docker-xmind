@@ -52,7 +52,7 @@ RUN \
   sed -i "s/^\.\./\/opt\/xmind/g" "/opt/xmind/XMind_amd64/XMind.ini" && \
   dbus-uuidgen > /etc/machine-id && \
   echo "**** cleanup ****" && \
-  sed -i 's|</applications>|  <application title="XMind  " type="normal">\n    <maximized>yes</maximized>\n  </application>\n</applications>|' /etc/xdg/openbox/rc.xml && \
+  sed -i 's|</applications>|  <application name="XMind" type="normal">\n    <maximized>yes</maximized>\n  </application>\n</applications>|' /etc/xdg/openbox/rc.xml && \
   apt-get clean && \
   rm -rf \
     /tmp/* \
