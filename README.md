@@ -1,4 +1,4 @@
-# XMind 8 Guacamole Wrapper
+# XMind 8 KasmVNC Wrapper
 
 ## What
 
