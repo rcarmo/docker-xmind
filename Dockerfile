@@ -23,7 +23,7 @@ RUN \
     libglib2.0-0 \
     libnss3 \
     libopengl0 \
-    libqpdf28 \
+    libqpdf29t64 \
     libxkbcommon-x11-0 \
     libxcb-icccm4 \
     libxcb-image0 \
